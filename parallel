@@ -1,32 +1,38 @@
 pipeline {
     agent any
     environment {
-        RELEASE='20.04'
+        RELEASE = '20.04'
     }
     stages {
         stage('Build') {
-            environment {
-                LOG_LEVEL='INFO'
-            }
             parallel {
                 stage('linux-arm64') {
                     agent any
+                    environment {
+                        LOG_LEVEL = 'INFO'
+                    }
                     steps {
-                        echo "Building release ${RELEASE} for ${STAGE_NAME} with log level ${LOG_LEVEL}..."
+                        echo "Building release ${RELEASE} for linux-arm64 with log level ${LOG_LEVEL}..."
                         sh 'sleep 10'
                     }
                 }
                 stage('linux-amd64') {
                     agent any
+                    environment {
+                        LOG_LEVEL = 'INFO'
+                    }
                     steps {
-                        echo "Building release ${RELEASE} for ${STAGE_NAME} with log level ${LOG_LEVEL}..."
+                        echo "Building release ${RELEASE} for linux-amd64 with log level ${LOG_LEVEL}..."
                         sh 'sleep 20'
                     }
                 }
                 stage('windows-amd64') {
                     agent any
+                    environment {
+                        LOG_LEVEL = 'INFO'
+                    }
                     steps {
-                        echo "Building release ${RELEASE} for ${STAGE_NAME} with log level ${LOG_LEVEL}..."
+                        echo "Building release ${RELEASE} for windows-amd64 with log level ${LOG_LEVEL}..."
                         sh 'sleep 30'
                     }
                 }
@@ -48,11 +54,11 @@ pipeline {
             steps {
                 echo "Deploying release ${RELEASE} to environment ${TARGET_ENVIRONMENT}"
             }
-        }        
+        }
     }
-    post{
+    post {
         always {
-             echo 'Prints whether deploy happened or not, success or failure'
+            echo 'Prints whether deploy happened or not, success or failure'
         }
     }
 }
