@@ -1,0 +1,51 @@
+node {
+    // Environment setup
+    def JAVA_HOME = tool name: 'JDK 11'
+    env.PATH = "${JAVA_HOME}/bin:${env.PATH}"
+
+    try {
+        stage('Checkout') {
+            // Clone the repository
+            checkout([$class: 'GitSCM', branches: [[name: '*/master']], 
+                      userRemoteConfigs: [[url: 'https://github.com/username/your-java-project.git']]])
+        }
+
+        stage('Build') {
+            // Use the custom build function from the shared library
+            echo 'Building the application...'
+            buildWithMaven('clean compile')
+        }
+
+        stage('Test') {
+            // Use the custom build function with test goal
+            echo 'Running tests...'
+            buildWithMaven('test')
+            
+            // Archive test results
+            junit '**/target/surefire-reports/*.xml'
+        }
+
+        stage('Package') {
+            // Package the application
+            echo 'Packaging the application...'
+            buildWithMaven('package')
+            
+            // Archive the generated artifact
+            archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+        }
+
+        stage('Deploy') {
+            // Use the deploy function from the shared library
+            echo 'Deploying the application...'
+            deployApp('target/your-app.jar', 'your-server')
+        }
+
+    } catch (Exception e) {
+        // Catch and log any errors that occur in the pipeline
+        echo "Pipeline failed: ${e.getMessage()}"
+        currentBuild.result = 'FAILURE'
+    } finally {
+        // Always clean up workspace after the build completes
+        cleanWs()
+    }
+}
