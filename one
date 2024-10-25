@@ -1,0 +1,20 @@
+pipeline {
+    agent {label 'slave1'}  
+    stages {
+        stage("SCM Checkout") {
+            steps {
+                git url: "https://github.com/Kiran9743/java_project.git", branch: "main"
+            }
+        }
+        stage("Build") {
+            steps {
+                sh "mvn clean install"
+            }
+        }
+    stage("Deploy") {
+            steps {
+                sh "scp -r /var/lib/jenkins/workspace/cicdpipeline/target/sample_website.war ec2-user@54.209.207.161:/home/ec2-user/tomcat/webapps"
+            }
+        }
+    }
+}    
