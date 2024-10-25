@@ -1,11 +1,6 @@
 pipeline {
     agent {label 'slave1'}  
     stages {
-        stage("SCM Checkout") {
-            steps {
-                git url: "https://github.com/Kiran9743/java_project.git", branch: "main"
-            }
-        }
         stage("Build") {
             steps {
                 sh "mvn clean install"
