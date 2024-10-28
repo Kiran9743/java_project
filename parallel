@@ -4,7 +4,7 @@ pipeline {
         RELEASE = '20.04'
     }
     stages {
-        stage('Build') {
+        stage('Build1') {
             parallel {
                 stage('linux-arm64') {
                     agent any
