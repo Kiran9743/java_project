@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage("SCM Checkout") {
             steps {
-                git url: "https://github.com/Kiran9743/java_project.git", branch: "main"
+                git url: "https://github.com/Kiran9743/java_project.git", branch: "DEV_EMV"
             }
         }
         stage("Build") {
