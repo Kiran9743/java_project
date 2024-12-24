@@ -1,0 +1,2 @@
+ac8a39465e6408b632732cbe7172218500b8ead4 657174680 terraform-provider-aws_v5.82.2_x5
+639aaa3db54531351c662f5b7e4e5265086f385c 134 terraform-provider-aws_v5.82.2_x5

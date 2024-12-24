@@ -1,12 +1,15 @@
-# Create a VP
+provider "aws" {
+  region = "us-west-2"
+}
 
-resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
+resource "aws_vpc" "example" {
+  count       = 2  # Create 2 VPCs
+  cidr_block  = "10.0.0.0/16"
   enable_dns_support = true
   enable_dns_hostnames = true
 
   tags = {
-    Name = "main-vpc"
+    Name = "vpc-${count.index}"
   }
 }
 
