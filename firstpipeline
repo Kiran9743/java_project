@@ -10,10 +10,7 @@ pipeline {
             steps {
                 sh "mvn clean install"
             }
-        }
-    stage("Deploy") {
-            steps {
-                sh "scp -r /var/lib/jenkins/workspace/cicdpipeline/target/sample_website.war ec2-user@54.209.207.161:/home/ec2-user/tomcat/webapps"
+    
             }
         }
     }
