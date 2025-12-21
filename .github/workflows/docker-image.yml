@@ -1,4 +1,4 @@
-name: Build and push to DTR
+name: Build and push to Docker Hub
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE_NAME: ${{ secrets.IMAGE_NAME }}   # e.g. kiranhulk/java_project
+  IMAGE_NAME: kiranhulk/java_project
 
 jobs:
   build-and-push:
@@ -17,20 +17,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up QEMU (for multi-arch emulation)
+      - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Log in to DTR
+      - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          registry: ${{ secrets.DTR_REGISTRY }}
-          username: ${{ secrets.DTR_USERNAME }}
-          password: ${{ secrets.DTR_PASSWORD }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push image to DTR
+      - name: Build and push image
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -38,10 +37,5 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            ${{ secrets.DTR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-            ${{ secrets.DTR_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          build-args: |
-            GIT_SHA=${{ github.sha }}
-          # Optional (uncomment if your DTR supports registry cache)
-          # cache-from: type=registry,ref=${{ secrets.DTR_REGISTRY }}/${{ env.IMAGE_NAME }}:cache
-          # cache-to: type=registry,ref=${{ secrets.DTR_REGISTRY }}/${{ env.IMAGE_NAME }}:cache,mode=max
+            kiranhulk/java_project:${{ github.sha }}
+            kiranhulk/java_project:latest
