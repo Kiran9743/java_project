@@ -1,4 +1,4 @@
-name: Build and push to DTR
+name: Build and push to Docker Hub
 
 on:
   push:
@@ -7,48 +7,31 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE_NAME: ${{ secrets.IMAGE_NAME }}   # e.g. kiranhulk/java_project
+  IMAGE_NAME: kiranhulk/java_project
 
 jobs:
   build-and-push:
-    runs-on: self-hosted   # REQUIRED for private DTR
+    runs-on: self-hosted   # your local VM runner
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ---- SECRET VALIDATION (SAFE) ----
-      - name: Validate secrets
-        run: |
-          [ -z "${{ secrets.DTR_USERNAME }}" ] && echo "❌ DTR_USERNAME missing" && exit 1
-          [ -z "${{ secrets.DTR_PASSWORD }}" ] && echo "❌ DTR_PASSWORD missing" && exit 1
-          [ -z "${{ secrets.DTR_REGISTRY }}" ] && echo "❌ DTR_REGISTRY missing" && exit 1
-          [ -z "${{ secrets.IMAGE_NAME }}" ] && echo "❌ IMAGE_NAME missing" && exit 1
-          echo "✅ All secrets are present"
-
-      # ---- OPTIONAL DNS CHECK ----
-      - name: Verify DTR DNS
-        run: |
-          nslookup ${{ secrets.DTR_REGISTRY }}
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # ---- LOGIN TO DTR ----
-      - name: Log in to DTR
+      - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          registry: ${{ secrets.DTR_REGISTRY }}
-          username: ${{ secrets.DTR_USERNAME }}
-          password: ${{ secrets.DTR_PASSWORD }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # ---- BUILD & PUSH IMAGE ----
-      - name: Build and push image to DTR
+      - name: Build and push image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: Dockerfile
           push: true
           tags: |
-            ${{ secrets.DTR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-            ${{ secrets.DTR_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            kiranhulk/java_project:${{ github.sha }}
+            kiranhulk/java_project:latest
