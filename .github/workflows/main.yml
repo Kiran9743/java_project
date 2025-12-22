@@ -1,4 +1,4 @@
-name: Build and push Docker image
+name: CI Pipeline - Code Scan → Build → Docker
 
 on:
   push:
@@ -6,16 +6,48 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-push:
+  # =========================
+  # 1️⃣ CODE SCAN (SAST)
+  # =========================
+  code-scan:
+    name: Code Scan (CodeQL)
     runs-on: self-hosted
+
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java
+
+      # CodeQL needs a build step
+      - name: Build for CodeQL analysis
+        run: mvn clean compile -DskipTests
+
+      - name: Run CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  # =========================
+  # 2️⃣ BUILD + DOCKER
+  # =========================
+  build-and-push:
+    name: Build & Push Docker Image
+    runs-on: self-hosted
+    needs: code-scan   # 👈 Docker runs ONLY if scan passes
 
     steps:
       - uses: actions/checkout@v4
 
       # 🔹 Build WAR file
       - name: Build WAR with Maven
-        run: |
-          mvn clean package -DskipTests
+        run: mvn clean package -DskipTests
 
       # 🔹 Docker login
       - name: Docker login
@@ -28,10 +60,8 @@ jobs:
 
       # 🔹 Build Docker image
       - name: Build Docker image
-        run: |
-          docker build -t kiranhulk/java_project:latest .
+        run: docker build -t kiranhulk/java_project:latest .
 
       # 🔹 Push Docker image
       - name: Push Docker image
-        run: |
-          docker push kiranhulk/java_project:latest
+        run: docker push kiranhulk/java_project:latest
